@@ -1,0 +1,32 @@
+* {
+    box-sizing: border-box;
+}
+
+.canvas {
+    width: 90%;
+    margin: 0 auto;
+}
+
+canvas {
+    border: 1px solid red;
+}
+
+.mg-top-20 {
+    margin-top: 20px;
+}
+
+.mg-auto {
+    margin: 0 auto;
+}
+
+.full-width {
+    width: 100% !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mdl-textfield {
+    width: 100px !important;
+}
