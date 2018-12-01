@@ -3,12 +3,12 @@
 }
 
 .canvas {
-    width: 90%;
+    /*width: 90%;*/
     margin: 0 auto;
 }
 
 canvas {
-    border: 1px solid red;
+    border: 5px solid #fe8414;
 }
 
 .mg-top-20 {
@@ -28,5 +28,5 @@ canvas {
 }
 
 .mdl-textfield {
-    width: 100px !important;
+    width: 120px !important;
 }

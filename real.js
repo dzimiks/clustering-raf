@@ -75,9 +75,16 @@ let dataPoints = [],
     timeout,
     loopRunning = false;
 
-let reds = [];
-let greens = [];
-let blues = [];
+let color1 = [];
+let color2 = [];
+let color3 = [];
+let color4 = [];
+let color5 = [];
+let color6 = [];
+let color7 = [];
+let color8 = [];
+let color9 = [];
+let color10 = [];
 
 function addNewPoint(point) {
     if (addingDataPointsManually) {
@@ -272,18 +279,31 @@ function changeDistanceFunction() {
 }
 
 function redrawAll() {
-    // TODO
     canvas.width = canvas.width;
     dataPoints.map(drawDataPoint);
     centroids.map(drawCentroid);
 
-    hull(reds, 'red');
-    hull(greens, 'green');
-    hull(blues, 'blue');
+    hull(color1, '#e53935');
+    hull(color2, '#43a047');
+    hull(color3, '#0288d1');
+    hull(color4, '#0d47a1');
+    hull(color5, '#7b1fa2');
+    hull(color6, '#ff6f00');
+    hull(color7, '#fdd835');
+    hull(color8, '#A50B5E');
+    hull(color9, '#757575');
+    hull(color10, '#4e342e');
 
-    reds = [];
-    greens = [];
-    blues = [];
+    color1 = [];
+    color2 = [];
+    color3 = [];
+    color4 = [];
+    color5 = [];
+    color6 = [];
+    color7 = [];
+    color8 = [];
+    color9 = [];
+    color10 = [];
 }
 
 function hull(points, color) {
@@ -355,15 +375,43 @@ function enqueNextStep(overrideAfter) {
 
 function drawDataPoint([x, y], index) {
     if (dataPointsAssignedCentroids[index] === 0) {
-        reds.push(new Point(x, y));
+        color1.push(new Point(x, y));
     }
 
     if (dataPointsAssignedCentroids[index] === 1) {
-        greens.push(new Point(x, y));
+        color2.push(new Point(x, y));
     }
 
     if (dataPointsAssignedCentroids[index] === 2) {
-        blues.push(new Point(x, y));
+        color3.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 3) {
+        color4.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 4) {
+        color5.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 5) {
+        color6.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 6) {
+        color7.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 7) {
+        color8.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 8) {
+        color9.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 9) {
+        color10.push(new Point(x, y));
     }
 
     ctx.save();
