@@ -2,16 +2,16 @@ let canvas = document.getElementsByTagName('canvas')[0],
     ctx = canvas.getContext('2d'),
 
     colors = [
-        '#ED0A3F',
-        '#0095B7',
-        '#33CC99',
-        '#00468C',
-        '#0066FF',
-        '#EE34D2',
-        '#C88A65',
+        '#e53935',
+        '#43a047',
+        '#0288d1',
+        '#0d47a1',
+        '#7b1fa2',
+        '#ff6f00',
+        '#fdd835',
         '#A50B5E',
-        '#733380',
-        '#87421F'
+        '#757575',
+        '#4e342e'
     ],
 
     distanceFunctions = {
@@ -61,7 +61,6 @@ fillDistanceFunctionSelect();
 changeDistanceFunction();
 selectDistanceFunction.addEventListener('change', changeDistanceFunction, false);
 
-
 let dataPoints = [],
     centroids = [],
     dataPointsAssignedCentroids = {}, // { dataPointIndex: centroidIndex }
@@ -75,6 +74,10 @@ let dataPoints = [],
     nextAfter,
     timeout,
     loopRunning = false;
+
+let reds = [];
+let greens = [];
+let blues = [];
 
 function addNewPoint(point) {
     if (addingDataPointsManually) {
@@ -182,26 +185,25 @@ function reassignDataPoints() {
     });
     redrawAll();
 
-    realPoints = [];
-
-    for (let i = 0; i < dataPoints.length; i++) {
-        realPoints[i] = new Point(dataPoints[i][0], dataPoints[i][1]);
-    }
-
-    console.log(realPoints);
-
-    convexHull = new ConvexHull(realPoints);
-    convexHull.calculate();
-
-    for (let i = 1; i < convexHull.hull.length; i++) {
-        p1 = convexHull.hull[i - 1];
-        p2 = convexHull.hull[i];
-        ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
-        ctx.closePath();
-        ctx.stroke();
-    }
+    // realPoints = [];
+    //
+    // for (let i = 0; i < dataPoints.length; i++) {
+    //     realPoints[i] = new Point(dataPoints[i][0], dataPoints[i][1]);
+    // }
+    //
+    // convexHull = new ConvexHull(realPoints);
+    // convexHull.calculate();
+    //
+    // for (let i = 1; i < convexHull.hull.length; i++) {
+    //     p1 = convexHull.hull[i - 1];
+    //     p2 = convexHull.hull[i];
+    //     ctx.lineWidth = 3;
+    //     ctx.beginPath();
+    //     ctx.moveTo(p1.x, p1.y);
+    //     ctx.lineTo(p2.x, p2.y);
+    //     ctx.closePath();
+    //     ctx.stroke();
+    // }
 }
 
 function updateCentroidsPositions() {
@@ -270,9 +272,37 @@ function changeDistanceFunction() {
 }
 
 function redrawAll() {
+    // TODO
     canvas.width = canvas.width;
     dataPoints.map(drawDataPoint);
     centroids.map(drawCentroid);
+
+    hull(reds, 'red');
+    hull(greens, 'green');
+    hull(blues, 'blue');
+
+    reds = [];
+    greens = [];
+    blues = [];
+}
+
+function hull(points, color) {
+    if (points.length > 0) {
+        let convexHull = new ConvexHull(points);
+        convexHull.calculate();
+
+        for (let i = 1; i < convexHull.hull.length; i++) {
+            let p1 = convexHull.hull[i - 1];
+            let p2 = convexHull.hull[i];
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.closePath();
+            ctx.stroke();
+        }
+    }
 }
 
 function tryAddNewCentroid(point) {
@@ -324,6 +354,18 @@ function enqueNextStep(overrideAfter) {
 }
 
 function drawDataPoint([x, y], index) {
+    if (dataPointsAssignedCentroids[index] === 0) {
+        reds.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 1) {
+        greens.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 2) {
+        blues.push(new Point(x, y));
+    }
+
     ctx.save();
     ctx.fillStyle = colors[dataPointsAssignedCentroids[index]];
     ctx.beginPath();
