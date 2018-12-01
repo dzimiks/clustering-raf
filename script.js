@@ -18,6 +18,7 @@ let canvas = document.getElementsByTagName('canvas')[0],
         "Euclidean": euclideanDistance,
         "Manhattan": manhattanDistance
     },
+
     distance, // function (will be dynamically set)
 
     buttonAddDataPointsManually = document.getElementById('add-data-points-manually'),
@@ -102,6 +103,7 @@ function addNewPoint(point) {
 
 function getPointClickedOnCanvas(e) {
     let canvasRect = canvas.getBoundingClientRect();
+
     return [
         e.clientX - canvasRect.left - 1,
         e.clientY - canvasRect.top - 1
@@ -112,6 +114,7 @@ function toggleAddingDataPointsManually() {
     if (addingCentroidsManually) {
         toggleAddingCentroidsManually();
     }
+
     addingDataPointsManually = !addingDataPointsManually;
     toggleButtonText(buttonAddDataPointsManually);
     updateCanvasStyles();
@@ -120,14 +123,17 @@ function toggleAddingDataPointsManually() {
 function addDataPointsRandomly(count) {
     for (let i = 0; i < count; ++i) {
         let newPoint;
+
         do {
             newPoint = [
                 randInt(0, canvas.width - 1),
                 randInt(0, canvas.height - 1)
             ];
         } while (newPoint in centroids);
+
         dataPoints.push(newPoint);
     }
+
     redrawAll();
 }
 
@@ -142,9 +148,11 @@ function toggleAddingCentroidsManually() {
         showCentroidLimitReachedMessage();
         return;
     }
+
     if (addingDataPointsManually) {
         toggleAddingDataPointsManually();
     }
+
     addingCentroidsManually = !addingCentroidsManually;
     toggleButtonText(buttonAddCentroidsManually);
     updateCanvasStyles();
@@ -152,20 +160,25 @@ function toggleAddingCentroidsManually() {
 
 function addCentroidsRandomly(count) {
     let limitReached = false;
+
     for (let i = 0; i < count; ++i) {
         let newPoint;
+
         do {
             newPoint = [
                 randInt(0, canvas.width - 1),
                 randInt(0, canvas.height - 1)
             ];
         } while (newPoint in centroids);
+
         if (!tryAddNewCentroid(newPoint)) {
             limitReached = true;
             break;
         }
     }
+
     redrawAll();
+
     if (limitReached) {
         showCentroidLimitReachedMessage();
     }
@@ -183,34 +196,17 @@ function reassignDataPoints() {
             closestCentroidIndex = undefined;
         centroids.map((centroid, centroidIndex) => {
             let dist = distance(point, centroid);
+
             if (dist < smallestDistance) {
                 smallestDistance = dist;
                 closestCentroidIndex = centroidIndex;
             }
         });
+
         dataPointsAssignedCentroids[pointIndex] = closestCentroidIndex;
     });
-    redrawAll();
 
-    // realPoints = [];
-    //
-    // for (let i = 0; i < dataPoints.length; i++) {
-    //     realPoints[i] = new Point(dataPoints[i][0], dataPoints[i][1]);
-    // }
-    //
-    // convexHull = new ConvexHull(realPoints);
-    // convexHull.calculate();
-    //
-    // for (let i = 1; i < convexHull.hull.length; i++) {
-    //     p1 = convexHull.hull[i - 1];
-    //     p2 = convexHull.hull[i];
-    //     ctx.lineWidth = 3;
-    //     ctx.beginPath();
-    //     ctx.moveTo(p1.x, p1.y);
-    //     ctx.lineTo(p2.x, p2.y);
-    //     ctx.closePath();
-    //     ctx.stroke();
-    // }
+    redrawAll();
 }
 
 function updateCentroidsPositions() {
@@ -218,28 +214,36 @@ function updateCentroidsPositions() {
         let assignedPoints = dataPoints.filter((_, pointIndex) => dataPointsAssignedCentroids[pointIndex] == centroidIndex),
             sumX = 0,
             sumY = 0;
-        if (assignedPoints.length == 0)
+
+        if (assignedPoints.length == 0) {
             return;
+        }
+
         assignedPoints.map(([x, y]) => {
             sumX += x;
             sumY += y;
         });
+
         centroid[0] = sumX / assignedPoints.length;
         centroid[1] = sumY / assignedPoints.length;
     });
+
     redrawAll();
 }
 
 function runStepsInLoop() {
     toggleButtonText(buttonRunStepsInLoop);
+
     if (!loopRunning) {
         loopRunning = true;
         currentStep = 0;
         nextAfter = +inputRunStepsInLoopMilliseconds.value;
+
         if (isNaN(nextAfter) || nextAfter <= 0) {
             alert('Wrong value!');
             return;
         }
+
         enqueNextStep(0);
     } else {
         clearTimeout(timeout);
@@ -255,6 +259,7 @@ function restartLoop() {
     if (loopRunning) {
         runStepsInLoop();
     }
+
     runStepsInLoop();
 }
 
@@ -329,6 +334,7 @@ function tryAddNewCentroid(point) {
     if (isCentroidLimitReached()) {
         return false;
     }
+
     centroids.push(point);
     return true;
 }
@@ -357,6 +363,7 @@ function randInt(min, max) {
         max = arguments[0];
         min = 0;
     }
+
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
@@ -366,6 +373,7 @@ function isCentroidLimitReached() {
 
 function enqueNextStep(overrideAfter) {
     let delay = overrideAfter != undefined ? overrideAfter : nextAfter;
+
     timeout = setTimeout(() => {
         steps[currentStep]();
         currentStep = (currentStep + 1) % steps.length;
@@ -464,24 +472,29 @@ function ConvexHull(points) {
         upperHull = [];
         this.calcUpperhull(upperHull);
 
-        for (let i = 0; i < upperHull.length; i++)
+        for (let i = 0; i < upperHull.length; i++) {
             this.hull.push(upperHull[i]);
+        }
 
         lowerHull = [];
         this.calcLowerhull(lowerHull);
 
-        for (let i = 0; i < lowerHull.length; i++)
+        for (let i = 0; i < lowerHull.length; i++) {
             this.hull.push(lowerHull[i]);
+        }
     };
+
     this.calcUpperhull = function (upperHull) {
         let i = 0;
         upperHull.push(points[i]);
         i++;
         upperHull.push(points[i]);
         i++;
+
         // Start upperHull scan
         for (i; i < points.length; i++) {
             upperHull.push(points[i]);
+
             while (
                 upperHull.length > 2 && // more than 2 points
                 !upperHull[upperHull.length - 3].rotateRight(upperHull[upperHull.length - 1], upperHull[upperHull.length - 2]) // last 3 points make left turn
@@ -489,15 +502,18 @@ function ConvexHull(points) {
                 upperHull.splice(upperHull.indexOf(upperHull[upperHull.length - 2]), 1); // remove middle point
         }
     };
+
     this.calcLowerhull = function (lowerHull) {
         let i = points.length - 1;
         lowerHull.push(points[i]);
         i--;
         lowerHull.push(points[i]);
         i--;
+
         // Start lowerHull scan
         for (i; i >= 0; i--) {
             lowerHull.push(points[i]);
+
             while (
                 lowerHull.length > 2 && // more than 2 points
                 !lowerHull[lowerHull.length - 3].rotateRight(lowerHull[lowerHull.length - 1], lowerHull[lowerHull.length - 2]) // last 3 points make left turn
