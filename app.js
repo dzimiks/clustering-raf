@@ -2,16 +2,16 @@ let canvas = document.getElementsByTagName('canvas')[0],
     ctx = canvas.getContext('2d'),
 
     colors = [
-        '#ED0A3F',
-        '#0095B7',
-        '#33CC99',
-        '#00468C',
-        '#0066FF',
-        '#EE34D2',
-        '#C88A65',
+        '#e53935',
+        '#43a047',
+        '#0288d1',
+        '#0d47a1',
+        '#7b1fa2',
+        '#ff6f00',
+        '#fdd835',
         '#A50B5E',
-        '#733380',
-        '#fe8414'
+        '#757575',
+        '#4e342e'
     ],
 
     distanceFunctions = {
@@ -61,7 +61,6 @@ fillDistanceFunctionSelect();
 changeDistanceFunction();
 selectDistanceFunction.addEventListener('change', changeDistanceFunction, false);
 
-
 let dataPoints = [],
     centroids = [],
     dataPointsAssignedCentroids = {}, // { dataPointIndex: centroidIndex }
@@ -75,6 +74,17 @@ let dataPoints = [],
     nextAfter,
     timeout,
     loopRunning = false;
+
+let color1 = [];
+let color2 = [];
+let color3 = [];
+let color4 = [];
+let color5 = [];
+let color6 = [];
+let color7 = [];
+let color8 = [];
+let color9 = [];
+let color10 = [];
 
 function addNewPoint(point) {
     if (addingDataPointsManually) {
@@ -92,14 +102,16 @@ function addNewPoint(point) {
 
 function getPointClickedOnCanvas(e) {
     let canvasRect = canvas.getBoundingClientRect();
-    return new Point(e.clientX - canvasRect.left - 1, e.clientY - canvasRect.top - 1);
+    return [
+        e.clientX - canvasRect.left - 1,
+        e.clientY - canvasRect.top - 1
+    ];
 }
 
 function toggleAddingDataPointsManually() {
     if (addingCentroidsManually) {
         toggleAddingCentroidsManually();
     }
-
     addingDataPointsManually = !addingDataPointsManually;
     toggleButtonText(buttonAddDataPointsManually);
     updateCanvasStyles();
@@ -108,14 +120,14 @@ function toggleAddingDataPointsManually() {
 function addDataPointsRandomly(count) {
     for (let i = 0; i < count; ++i) {
         let newPoint;
-
         do {
-            newPoint = new Point(randInt(0, canvas.width - 1), randInt(0, canvas.height - 1));
+            newPoint = [
+                randInt(0, canvas.width - 1),
+                randInt(0, canvas.height - 1)
+            ];
         } while (newPoint in centroids);
-
         dataPoints.push(newPoint);
     }
-
     redrawAll();
 }
 
@@ -130,11 +142,9 @@ function toggleAddingCentroidsManually() {
         showCentroidLimitReachedMessage();
         return;
     }
-
     if (addingDataPointsManually) {
         toggleAddingDataPointsManually();
     }
-
     addingCentroidsManually = !addingCentroidsManually;
     toggleButtonText(buttonAddCentroidsManually);
     updateCanvasStyles();
@@ -142,22 +152,20 @@ function toggleAddingCentroidsManually() {
 
 function addCentroidsRandomly(count) {
     let limitReached = false;
-
     for (let i = 0; i < count; ++i) {
         let newPoint;
-
         do {
-            newPoint = new Point(randInt(0, canvas.width - 1), randInt(0, canvas.height - 1));
+            newPoint = [
+                randInt(0, canvas.width - 1),
+                randInt(0, canvas.height - 1)
+            ];
         } while (newPoint in centroids);
-
         if (!tryAddNewCentroid(newPoint)) {
             limitReached = true;
             break;
         }
     }
-
     redrawAll();
-
     if (limitReached) {
         showCentroidLimitReachedMessage();
     }
@@ -173,81 +181,65 @@ function reassignDataPoints() {
     dataPoints.map((point, pointIndex) => {
         let smallestDistance = Number.MAX_SAFE_INTEGER,
             closestCentroidIndex = undefined;
-
-        // console.log(point, ': ', pointIndex);
-
         centroids.map((centroid, centroidIndex) => {
-            // console.log(centroid, '# ', centroidIndex);
             let dist = distance(point, centroid);
-
             if (dist < smallestDistance) {
                 smallestDistance = dist;
                 closestCentroidIndex = centroidIndex;
             }
         });
-
         dataPointsAssignedCentroids[pointIndex] = closestCentroidIndex;
     });
-
     redrawAll();
 
-    console.log(dataPoints);
-
-    convexHull = new ConvexHull(dataPoints);
-    convexHull.calculate();
-
-    for (let i = 1; i < convexHull.hull.length; i++) {
-        p1 = convexHull.hull[i - 1];
-        p2 = convexHull.hull[i];
-        ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
-        ctx.closePath();
-        ctx.stroke();
-    }
+    // realPoints = [];
+    //
+    // for (let i = 0; i < dataPoints.length; i++) {
+    //     realPoints[i] = new Point(dataPoints[i][0], dataPoints[i][1]);
+    // }
+    //
+    // convexHull = new ConvexHull(realPoints);
+    // convexHull.calculate();
+    //
+    // for (let i = 1; i < convexHull.hull.length; i++) {
+    //     p1 = convexHull.hull[i - 1];
+    //     p2 = convexHull.hull[i];
+    //     ctx.lineWidth = 3;
+    //     ctx.beginPath();
+    //     ctx.moveTo(p1.x, p1.y);
+    //     ctx.lineTo(p2.x, p2.y);
+    //     ctx.closePath();
+    //     ctx.stroke();
+    // }
 }
 
 function updateCentroidsPositions() {
     centroids.map((centroid, centroidIndex) => {
-        let assignedPoints = dataPoints.filter((_, pointIndex) => dataPointsAssignedCentroids[pointIndex] === centroidIndex),
+        let assignedPoints = dataPoints.filter((_, pointIndex) => dataPointsAssignedCentroids[pointIndex] == centroidIndex),
             sumX = 0,
             sumY = 0;
-
-        if (assignedPoints.length === 0)
+        if (assignedPoints.length == 0)
             return;
-
-        console.log(assignedPoints);
-
-        assignedPoints.map((point) => {
-            sumX += point.x;
-            sumY += point.y;
+        assignedPoints.map(([x, y]) => {
+            sumX += x;
+            sumY += y;
         });
-
-        console.log(assignedPoints);
-        console.log(sumX);
-        console.log(sumY);
-
         centroid[0] = sumX / assignedPoints.length;
         centroid[1] = sumY / assignedPoints.length;
-        // console.log('update centroid: ', centroid);
     });
-
     redrawAll();
 }
 
 function runStepsInLoop() {
     toggleButtonText(buttonRunStepsInLoop);
-
     if (!loopRunning) {
         loopRunning = true;
         currentStep = 0;
         nextAfter = +inputRunStepsInLoopMilliseconds.value;
-
         if (isNaN(nextAfter) || nextAfter <= 0) {
             alert('Wrong value!');
             return;
         }
-
         enqueNextStep(0);
     } else {
         clearTimeout(timeout);
@@ -263,16 +255,15 @@ function restartLoop() {
     if (loopRunning) {
         runStepsInLoop();
     }
-
     runStepsInLoop();
 }
 
 function euclideanDistance(point1, point2) {
-    return Math.sqrt(Math.pow(point1.x - point2.x, 2) + Math.pow(point1.y - point2.y, 2));
+    return Math.sqrt(Math.pow(point1[0] - point2[0], 2) + Math.pow(point1[1] - point2[1], 2));
 }
 
 function manhattanDistance(point1, point2) {
-    return Math.abs(point1.x - point2.x) + Math.abs(point1.y - point2.y);
+    return Math.abs(point1[0] - point2[0]) + Math.abs(point1[1] - point2[1]);
 }
 
 function fillDistanceFunctionSelect() {
@@ -288,15 +279,56 @@ function changeDistanceFunction() {
 }
 
 function redrawAll() {
+    canvas.width = canvas.width;
     dataPoints.map(drawDataPoint);
     centroids.map(drawCentroid);
+
+    hull(color1, '#e53935');
+    hull(color2, '#43a047');
+    hull(color3, '#0288d1');
+    hull(color4, '#0d47a1');
+    hull(color5, '#7b1fa2');
+    hull(color6, '#ff6f00');
+    hull(color7, '#fdd835');
+    hull(color8, '#A50B5E');
+    hull(color9, '#757575');
+    hull(color10, '#4e342e');
+
+    color1 = [];
+    color2 = [];
+    color3 = [];
+    color4 = [];
+    color5 = [];
+    color6 = [];
+    color7 = [];
+    color8 = [];
+    color9 = [];
+    color10 = [];
+}
+
+function hull(points, color) {
+    if (points.length > 0) {
+        let convexHull = new ConvexHull(points);
+        convexHull.calculate();
+
+        for (let i = 1; i < convexHull.hull.length; i++) {
+            let p1 = convexHull.hull[i - 1];
+            let p2 = convexHull.hull[i];
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.closePath();
+            ctx.stroke();
+        }
+    }
 }
 
 function tryAddNewCentroid(point) {
     if (isCentroidLimitReached()) {
         return false;
     }
-
     centroids.push(point);
     return true;
 }
@@ -325,7 +357,6 @@ function randInt(min, max) {
         max = arguments[0];
         min = 0;
     }
-
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
@@ -335,7 +366,6 @@ function isCentroidLimitReached() {
 
 function enqueNextStep(overrideAfter) {
     let delay = overrideAfter != undefined ? overrideAfter : nextAfter;
-
     timeout = setTimeout(() => {
         steps[currentStep]();
         currentStep = (currentStep + 1) % steps.length;
@@ -343,26 +373,66 @@ function enqueNextStep(overrideAfter) {
     }, delay);
 }
 
-function drawDataPoint(p, index) {
+function drawDataPoint([x, y], index) {
+    if (dataPointsAssignedCentroids[index] === 0) {
+        color1.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 1) {
+        color2.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 2) {
+        color3.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 3) {
+        color4.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 4) {
+        color5.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 5) {
+        color6.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 6) {
+        color7.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 7) {
+        color8.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 8) {
+        color9.push(new Point(x, y));
+    }
+
+    if (dataPointsAssignedCentroids[index] === 9) {
+        color10.push(new Point(x, y));
+    }
+
     ctx.save();
     ctx.fillStyle = colors[dataPointsAssignedCentroids[index]];
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 5, 0, 2 * Math.PI);
+    ctx.arc(x, y, 5, 0, 2 * Math.PI);
     ctx.fill();
     ctx.restore();
 }
 
-function drawCentroid(p, index) {
+function drawCentroid([x, y], index) {
     ctx.save();
     ctx.strokeStyle = ctx.fillStyle = colors[index];
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.save();
-    ctx.arc(p.x, p.y, 8, 0, 2 * Math.PI);
+    ctx.arc(x, y, 8, 0, 2 * Math.PI);
     ctx.stroke();
     ctx.restore();
     ctx.beginPath();
-    ctx.arc(p.x, p.y, 6, 0, 2 * Math.PI);
+    ctx.arc(x, y, 6, 0, 2 * Math.PI);
     ctx.fill();
     ctx.strokeStyle = 'white';
     ctx.stroke();
